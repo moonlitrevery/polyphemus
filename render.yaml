@@ -1,0 +1,12 @@
+# Render Blueprint — https://render.com/docs/blueprint-spec
+# Deploys the Polyphemus API as a free Docker web service.
+services:
+  - type: web
+    name: polyphemus
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
+    envVars:
+      - key: CORS_ORIGINS
+        value: "*"
