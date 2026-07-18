@@ -1,5 +1,10 @@
 {
+  "title": "Polyphemus",
   "description": "Analyzes AeroDesign competition PDFs by extracting and counting words, images, and equations with OCR, delivering detailed technical insights and exports.",
+  "language": "pt-BR",
+  "icons": {
+    "icon": "/favicon.svg"
+  },
   "robots": {
     "index": false
   },
