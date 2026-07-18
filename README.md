@@ -1,3 +1,13 @@
+---
+title: Polyphemus
+emoji: "👁️"
+colorFrom: yellow
+colorTo: red
+sdk: docker
+app_port: 7860
+pinned: false
+---
+
 # Polyphemus
 
 Word counter for **SAE Brasil AeroDesign** technical reports.
@@ -87,6 +97,8 @@ Multipart form:
 | `file` | file | required | PDF upload |
 | `ocr` | bool | `true` | Run OCR on figures |
 | `include_lists` | bool | `false` | Include token lists |
+| `include_figures` | bool | `false` | Include figures as base64 data URLs |
+| `include_files` | bool | `false` | Include output file contents |
 
 JSON response:
 
@@ -99,13 +111,27 @@ JSON response:
   "non_words_in_figures": 86,
   "pages": 13,
   "special_pages": 7,
-  "math_words": 0
+  "math_words": 0,
+  "page_stats": [{ "page": 1, "words": 0, "non_words": 0, "math_words": 0, "figures": 1, "counted": false }],
+  "log": ["Words:         2065 ", "..."]
 }
 ```
 
 Also: `GET /health`, interactive docs at `/docs`.
 
 CORS is open to `*.vercel.app` and configurable via `CORS_ORIGINS`.
+
+## Frontend (`front/`)
+
+React + Vite + Tailwind single-page app (exported from Figma Make) fully wired
+to the API. Configure the backend URL via `VITE_API_URL`:
+
+```bash
+cd front
+pnpm install        # or npm install
+pnpm dev            # http://localhost:8443, expects backend on http://localhost:7860
+pnpm build          # production build in front/dist
+```
 
 ## Deploy (free)
 
@@ -116,14 +142,15 @@ CORS is open to `*.vercel.app` and configurable via `CORS_ORIGINS`.
 3. Space builds the `Dockerfile` (Python 3.12 + Tesseract + uv)
 4. API listens on port **7860**
 
+The YAML front-matter at the top of this README is the Space configuration.
 No paid OCR API — Tesseract runs inside the container.
 
 ### Frontend — Vercel
 
-Point your Figma/Next.js app at the Spaces URL:
+Import the repo on Vercel with **Root Directory = `front`** and set the env var:
 
 ```
-POST https://<user>-<space>.hf.space/count
+VITE_API_URL=https://<user>-<space>.hf.space
 ```
 
 ## Project layout
@@ -138,6 +165,7 @@ polyphemus/
 │   ├── pipeline.py    # orchestration
 │   └── cli.py         # CLI
 ├── api/main.py        # FastAPI
+├── front/             # React + Vite frontend (Vercel)
 ├── tests/             # fidelity suite + golden fixtures
 ├── Dockerfile         # HF Spaces (uv-based build)
 ├── pyproject.toml     # uv build backend + dependency groups
