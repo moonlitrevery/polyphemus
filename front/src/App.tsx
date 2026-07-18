@@ -10,7 +10,7 @@ import {
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
-type Screen = "upload" | "config" | "processing" | "dashboard" | "log" | "export"
+type Screen = "upload" | "config" | "processing" | "dashboard" | "log" | "faq" | "export"
 
 interface Config {
   extractImages: boolean
@@ -63,6 +63,59 @@ const PROCESSING_STEPS = [
   { label: "Rodando OCR nas imagens", sub: "Tesseract — varredura de figuras", duration: 2000 },
   { label: "Contando palavras", sub: "tokenização e filtragem", duration: 1500 },
   { label: "Compilando resultados", sub: "gerando arquivos de saída", duration: 1200 },
+]
+
+// ─── FAQ content ──────────────────────────────────────────────────────────────
+
+const FAQ_ITEMS: { q: string; a: string }[] = [
+  {
+    q: "O que o Polyphemus conta, exatamente?",
+    a: "Ele conta as palavras válidas do corpo do texto de um relatório técnico AeroDesign, seguindo as regras oficiais do PyAeroCounter: tokens compostos apenas por letras entram na contagem; números, letras gregas, pontuação isolada e símbolos matemáticos do Word são separados como \"non-words\". O resultado é o mesmo que a ferramenta oficial da Comissão Técnica produziria.",
+  },
+  {
+    q: "Por que o número é diferente da contagem do Word / Google Docs?",
+    a: "Porque as regras são diferentes de propósito. O Word conta tudo: números, siglas com dígitos, células de tabela, cabeçalhos, rodapés e a capa. O Polyphemus segue o regulamento: exclui a página 1 (capa), ignora cabeçalhos e rodapés, desconsidera páginas especiais (sumário, listas, referências) e filtra tokens que não são palavras. É normal o valor ser menor que o do Word.",
+  },
+  {
+    q: "Quais páginas ficam de fora da contagem?",
+    a: "A página 1 (capa) sempre fica de fora. Além dela, páginas cujo cabeçalho ou rodapé contém palavras-chave como \"Sumário\", \"Lista de Símbolos\", \"Referências\", \"Bibliografia\" (e as versões em inglês) são marcadas como páginas especiais e não são contadas. O número de páginas especiais aparece no log.",
+  },
+  {
+    q: "O que são \"non-words\"?",
+    a: "Tokens encontrados no texto que não contam como palavra: números (ou qualquer token contendo dígito), letras gregas, pontuação isolada, símbolos e strings em modo matemático do Microsoft Word. Eles são listados no arquivo nonwordsfile.txt para você conferir o que foi excluído.",
+  },
+  {
+    q: "O que são \"math-words\"?",
+    a: "Quando o relatório é escrito no Microsoft Word, as equações usam glifos matemáticos especiais (Unicode U+1D400+). O Polyphemus detecta esses tokens, não os conta como palavras e registra os que parecem palavras dentro de equações no arquivo mathmodewords.txt — útil para verificar se texto normal foi digitado dentro do editor de equações por engano.",
+  },
+  {
+    q: "Como funciona a contagem de palavras nas figuras (OCR)?",
+    a: "As imagens do PDF são extraídas e passadas pelo Tesseract OCR (com português e inglês). As palavras encontradas dentro das figuras são contadas separadamente — \"Words in Figures\" no log — e não somam na contagem principal. Serve para detectar texto \"escondido\" em imagens. Você pode desligar o OCR na tela de configuração para uma análise mais rápida.",
+  },
+  {
+    q: "Por que a primeira análise demora tanto (ou dá erro de conexão)?",
+    a: "O backend roda em um servidor gratuito que hiberna após 15 minutos sem uso. A primeira requisição depois de um período parado precisa \"acordar\" o servidor, o que leva cerca de um minuto. Se aparecer erro de conexão, aguarde alguns segundos e clique em analisar novamente — na segunda tentativa costuma funcionar de imediato.",
+  },
+  {
+    q: "Meu PDF fica salvo em algum servidor?",
+    a: "Não. O arquivo é processado em uma pasta temporária que é apagada assim que a análise termina. Nada é armazenado — nem o PDF, nem as contagens, nem as figuras extraídas. Cada análise é independente e efêmera.",
+  },
+  {
+    q: "Existe limite de tamanho ou de páginas?",
+    a: "Não há limite fixo, mas o servidor gratuito tem memória modesta. Relatórios AeroDesign típicos (até algumas dezenas de páginas) processam sem problema. PDFs muito grandes ou com muitas imagens em alta resolução podem demorar mais, principalmente com OCR ligado.",
+  },
+  {
+    q: "O resultado é idêntico ao PyAeroCounter oficial?",
+    a: "Sim. O Polyphemus é um porte fiel do PyAeroCounter, validado por testes automatizados que comparam a saída com a ferramenta original: mesma contagem de palavras, non-words, páginas, páginas especiais e a mesma sequência de tokens nos arquivos de saída.",
+  },
+  {
+    q: "O que cada arquivo exportado contém?",
+    a: "wordsfile.txt — todas as palavras que entraram na contagem, na ordem do documento; nonwordsfile.txt — os tokens excluídos; mathmodewords.txt — palavras detectadas em modo matemático do Word; logfile.txt — o resumo com todos os totais; e as figuras extraídas em PNG. São os mesmos arquivos que a ferramenta oficial gera.",
+  },
+  {
+    q: "A análise falhou com \"Verifique o Documento PDF\". O que houve?",
+    a: "O PDF provavelmente não tem camada de texto — é o caso de documentos escaneados ou exportados como imagem. O contador lê o texto embutido no PDF; se ele não existe, não há o que contar. Gere o PDF diretamente do Word/LaTeX (sem \"imprimir para PDF\" via imagem) e tente de novo.",
+  },
 ]
 
 // ─── Eye Component ────────────────────────────────────────────────────────────
@@ -188,6 +241,7 @@ function Nav({ screen, onNav }: { screen: Screen; onNav: (s: Screen) => void }) 
     { id: "dashboard", label: "Resultados" },
     { id: "log", label: "Log" },
     { id: "export", label: "Exportar" },
+    { id: "faq", label: "FAQ" },
   ]
 
   return (
@@ -260,7 +314,7 @@ function Nav({ screen, onNav }: { screen: Screen; onNav: (s: Screen) => void }) 
       {/* Status */}
       <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: "#7A7264", letterSpacing: "0.08em" }}>
         <span style={{ color: "#2E7D32", marginRight: 6 }}>●</span>
-        v2.4.1
+        v1.1
       </div>
     </nav>
   )
@@ -512,20 +566,6 @@ function UploadScreen({ onNext }: { onNext: (file: File | null) => void }) {
               </button>
             )}
           </div>
-        </div>
-
-        {/* Footer hint */}
-        <div
-          style={{
-            marginTop: 48,
-            fontFamily: "'JetBrains Mono', monospace",
-            fontSize: 10,
-            color: "#3A3428",
-            letterSpacing: "0.12em",
-            textTransform: "uppercase",
-          }}
-        >
-          Suporta relatórios AeroDesign SAE Brasil
         </div>
       </div>
     </div>
@@ -1975,6 +2015,151 @@ function LogScreen({ result }: { result: AnalysisResult }) {
   )
 }
 
+// ─── FAQ Screen ───────────────────────────────────────────────────────────────
+
+function FaqScreen() {
+  const [open, setOpen] = useState<number | null>(0)
+
+  return (
+    <div
+      className="blueprint-grid"
+      style={{ minHeight: "100vh", paddingTop: 100, paddingBottom: 80 }}
+    >
+      <div style={{ maxWidth: 820, margin: "0 auto", padding: "0 24px" }}>
+        {/* Header */}
+        <div style={{ marginBottom: 40, textAlign: "center" }}>
+          <div style={{ display: "flex", justifyContent: "center", marginBottom: 16 }}>
+            <PolyphemusEye size={72} active />
+          </div>
+          <div
+            style={{
+              fontFamily: "'JetBrains Mono', monospace",
+              fontSize: 10,
+              letterSpacing: "0.3em",
+              color: "#D4A017",
+              textTransform: "uppercase",
+              marginBottom: 12,
+              opacity: 0.8,
+            }}
+          >
+            ── O Oráculo Responde ──
+          </div>
+          <h2
+            style={{
+              fontFamily: "'Cinzel', Georgia, serif",
+              fontSize: 36,
+              fontWeight: 700,
+              color: "#E8DFC8",
+              margin: 0,
+              letterSpacing: "0.06em",
+            }}
+          >
+            Perguntas Frequentes
+          </h2>
+          <p style={{ fontFamily: "'Crimson Pro', Georgia, serif", fontSize: 17, color: "#7A7264", marginTop: 8, fontStyle: "italic" }}>
+            Tudo o que a rapaziada costuma perguntar antes de invocar o olho.
+          </p>
+        </div>
+
+        {/* Accordion */}
+        <div style={{ display: "grid", gap: 10 }}>
+          {FAQ_ITEMS.map((item, i) => {
+            const isOpen = open === i
+            return (
+              <div
+                key={i}
+                style={{
+                  background: isOpen ? "rgba(212,160,23,0.05)" : "rgba(15,15,28,0.7)",
+                  border: `1px solid ${isOpen ? "rgba(212,160,23,0.35)" : "rgba(122,114,100,0.15)"}`,
+                  borderRadius: 6,
+                  overflow: "hidden",
+                  transition: "all 0.25s",
+                }}
+              >
+                <button
+                  onClick={() => setOpen(isOpen ? null : i)}
+                  style={{
+                    width: "100%",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    gap: 16,
+                    padding: "18px 22px",
+                    background: "none",
+                    border: "none",
+                    cursor: "pointer",
+                    textAlign: "left",
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!isOpen) (e.currentTarget.parentElement as HTMLDivElement).style.borderColor = "rgba(212,160,23,0.3)"
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isOpen) (e.currentTarget.parentElement as HTMLDivElement).style.borderColor = "rgba(122,114,100,0.15)"
+                  }}
+                >
+                  <span
+                    style={{
+                      fontFamily: "'Cinzel', Georgia, serif",
+                      fontSize: 14,
+                      fontWeight: 600,
+                      color: isOpen ? "#D4A017" : "#E8DFC8",
+                      letterSpacing: "0.04em",
+                      transition: "color 0.25s",
+                    }}
+                  >
+                    {item.q}
+                  </span>
+                  <span
+                    style={{
+                      fontFamily: "'JetBrains Mono', monospace",
+                      fontSize: 16,
+                      color: isOpen ? "#D4A017" : "#4A4438",
+                      flexShrink: 0,
+                      transform: isOpen ? "rotate(45deg)" : "rotate(0deg)",
+                      transition: "transform 0.25s, color 0.25s",
+                    }}
+                  >
+                    +
+                  </span>
+                </button>
+                {isOpen && (
+                  <div
+                    style={{
+                      padding: "0 22px 20px",
+                      fontFamily: "'Crimson Pro', Georgia, serif",
+                      fontSize: 16,
+                      lineHeight: 1.7,
+                      color: "#B5AB94",
+                      animation: "fadeInUp 0.25s ease-out",
+                    }}
+                  >
+                    {item.a}
+                  </div>
+                )}
+              </div>
+            )
+          })}
+        </div>
+
+        {/* Footer note */}
+        <div
+          style={{
+            marginTop: 40,
+            textAlign: "center",
+            fontFamily: "'JetBrains Mono', monospace",
+            fontSize: 10,
+            color: "#3A3428",
+            letterSpacing: "0.12em",
+            textTransform: "uppercase",
+          }}
+        >
+          Ainda com dúvida? Abra uma issue no repositório do projeto.
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ─── Export Panel ─────────────────────────────────────────────────────────────
 
 function ExportPanel({ result, onClose }: { result: AnalysisResult; onClose: () => void }) {
@@ -2324,6 +2509,7 @@ export default function App() {
       {screen === "log" && result && (
         <LogScreen result={result} />
       )}
+      {screen === "faq" && <FaqScreen />}
 
       {showExport && result && (
         <ExportPanel result={result} onClose={() => setShowExport(false)} />
