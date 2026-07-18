@@ -7,6 +7,8 @@ build/
 .venv/
 venv/
 .env
+.env.local
+node_modules/
 .pytest_cache/
 .mypy_cache/
 *.pdf
@@ -22,3 +24,4 @@ file_strings_from_images.txt
 .vscode/
 .cursor/
 .tmpbuild/
+.vercel/

@@ -11,3 +11,5 @@ _tmp_*
 PDFFILE
 .vscode
 tests/fixtures/PDFFILE
+front
+node_modules
