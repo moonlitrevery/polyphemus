@@ -1,0 +1,31 @@
+[build-system]
+requires = ["uv_build>=0.11.0,<0.12.0"]
+build-backend = "uv_build"
+
+[project]
+name = "polyphemus"
+version = "1.0.0"
+description = "Word counter for SAE Brasil AeroDesign technical reports (faithful PyAeroCounter port)"
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "MIT" }
+authors = [{ name = "Comissão Técnica Aerodesign" }]
+dependencies = [
+    "pymupdf>=1.24.0",
+    "pytesseract>=0.3.10",
+    "pillow>=10.0.0",
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.30.0",
+    "python-multipart>=0.0.9",
+]
+
+[project.scripts]
+polyphemus = "polyphemus.cli:main"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
