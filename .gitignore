@@ -17,6 +17,7 @@ wordsfile.txt
 nonwordsfile.txt
 mathmodewords.txt
 file_strings_from_images.txt
+!tests/fixtures/*.txt
 .DS_Store
 .vscode/
 .cursor/
