@@ -1,0 +1,10 @@
+{
+  "description": "Analyzes AeroDesign competition PDFs by extracting and counting words, images, and equations with OCR, delivering detailed technical insights and exports.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}

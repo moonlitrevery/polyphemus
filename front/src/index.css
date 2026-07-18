@@ -1,0 +1,146 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=JetBrains+Mono:wght@300;400;500;600;700&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap');
+@import 'tailwindcss';
+
+@theme inline {
+  --color-background: #0A0A0F;
+  --color-foreground: #E8DFC8;
+  --color-card: #0F0F1C;
+  --color-card-foreground: #E8DFC8;
+  --color-primary: #D4A017;
+  --color-primary-foreground: #0A0A0F;
+  --color-secondary: #6B1A2E;
+  --color-secondary-foreground: #E8DFC8;
+  --color-muted: #14141F;
+  --color-muted-foreground: #7A7264;
+  --color-accent: #C8860A;
+  --color-accent-foreground: #0A0A0F;
+  --color-border: rgba(212, 160, 23, 0.18);
+  --color-ring: #D4A017;
+  --radius: 4px;
+
+  --font-display: 'Cinzel', 'Georgia', serif;
+  --font-body: 'Crimson Pro', 'Georgia', serif;
+  --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  background-color: #0A0A0F;
+  color: #E8DFC8;
+  font-family: 'Crimson Pro', Georgia, serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(212, 160, 23, 0.3);
+  border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(212, 160, 23, 0.6);
+}
+
+/* Eye keyframes */
+@keyframes iris-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.04); opacity: 0.85; }
+}
+
+@keyframes scanline {
+  0% { top: 0%; opacity: 0.8; }
+  100% { top: 100%; opacity: 0; }
+}
+
+@keyframes eyeOpen {
+  0% { clip-path: ellipse(50% 2% at 50% 50%); }
+  100% { clip-path: ellipse(50% 48% at 50% 50%); }
+}
+
+@keyframes blink {
+  0%, 90%, 100% { clip-path: ellipse(50% 48% at 50% 50%); }
+  95% { clip-path: ellipse(50% 2% at 50% 50%); }
+}
+
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(212,160,23,0.3), 0 0 60px rgba(212,160,23,0.1); }
+  50% { box-shadow: 0 0 40px rgba(212,160,23,0.6), 0 0 80px rgba(212,160,23,0.2); }
+}
+
+@keyframes amber-flicker {
+  0%, 100% { opacity: 1; }
+  92% { opacity: 1; }
+  93% { opacity: 0.7; }
+  94% { opacity: 1; }
+  97% { opacity: 0.85; }
+  98% { opacity: 1; }
+}
+
+@keyframes progress-fill {
+  from { width: 0%; }
+  to { width: var(--target-width, 100%); }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes float-particle {
+  0% { transform: translateY(0px) translateX(0px); opacity: 0; }
+  20% { opacity: 0.6; }
+  80% { opacity: 0.3; }
+  100% { transform: translateY(-80px) translateX(20px); opacity: 0; }
+}
+
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes counter-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(-360deg); }
+}
+
+.animate-iris-pulse { animation: iris-pulse 3s ease-in-out infinite; }
+.animate-blink { animation: blink 6s ease-in-out infinite; }
+.animate-glow-pulse { animation: glow-pulse 2.5s ease-in-out infinite; }
+.animate-amber-flicker { animation: amber-flicker 8s ease-in-out infinite; }
+.animate-fade-in-up { animation: fadeInUp 0.4s ease-out forwards; }
+.animate-spin-slow { animation: spin-slow 8s linear infinite; }
+.animate-counter-spin { animation: counter-spin 8s linear infinite; }
+
+/* Blueprint grid texture */
+.blueprint-grid {
+  background-image:
+    linear-gradient(rgba(212,160,23,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(212,160,23,0.03) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+/* Parchment noise overlay */
+.parchment-overlay::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+}
+
+.font-display { font-family: 'Cinzel', Georgia, serif; }
+.font-body { font-family: 'Crimson Pro', Georgia, serif; }
+.font-mono { font-family: 'JetBrains Mono', monospace; }
