@@ -2141,19 +2141,101 @@ function FaqScreen() {
           })}
         </div>
 
-        {/* Footer note */}
+        {/* Contact card */}
         <div
           style={{
-            marginTop: 40,
+            marginTop: 48,
+            padding: "28px 24px",
+            background: "rgba(212,160,23,0.05)",
+            border: "1px solid rgba(212,160,23,0.3)",
+            borderRadius: 8,
             textAlign: "center",
-            fontFamily: "'JetBrains Mono', monospace",
-            fontSize: 10,
-            color: "#3A3428",
-            letterSpacing: "0.12em",
-            textTransform: "uppercase",
           }}
         >
-          Ainda com dúvida? Abra uma issue no repositório do projeto.
+          <div
+            style={{
+              fontFamily: "'Cinzel', Georgia, serif",
+              fontSize: 18,
+              fontWeight: 700,
+              color: "#E8DFC8",
+              letterSpacing: "0.06em",
+              marginBottom: 6,
+            }}
+          >
+            Ainda com dúvida?
+          </div>
+          <p
+            style={{
+              fontFamily: "'Crimson Pro', Georgia, serif",
+              fontSize: 15,
+              color: "#7A7264",
+              fontStyle: "italic",
+              margin: "0 0 20px",
+            }}
+          >
+            Entre em contato com os autores do projeto via WhatsApp:
+          </p>
+          <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
+            {[
+              {
+                name: "Gui",
+                role: "Biólogo e desenvolvedor em formação",
+                phone: "5516982617717",
+                display: "(16) 98261-7717",
+              },
+              {
+                name: "J.",
+                role: "MLOps Engineer | Software Engineer",
+                phone: "5514991220515",
+                display: "(14) 99122-0515",
+              },
+            ].map((c) => (
+              <a
+                key={c.phone}
+                href={`https://wa.me/${c.phone}?text=${encodeURIComponent("Olá! Tenho uma dúvida sobre o Polyphemus.")}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 12,
+                  padding: "14px 20px",
+                  background: "rgba(15,15,28,0.8)",
+                  border: "1px solid rgba(37,211,102,0.35)",
+                  borderRadius: 6,
+                  textDecoration: "none",
+                  transition: "all 0.25s",
+                  textAlign: "left",
+                }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLAnchorElement).style.borderColor = "rgba(37,211,102,0.8)"
+                  ;(e.currentTarget as HTMLAnchorElement).style.boxShadow = "0 0 20px rgba(37,211,102,0.15)"
+                  ;(e.currentTarget as HTMLAnchorElement).style.transform = "translateY(-1px)"
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLAnchorElement).style.borderColor = "rgba(37,211,102,0.35)"
+                  ;(e.currentTarget as HTMLAnchorElement).style.boxShadow = "none"
+                  ;(e.currentTarget as HTMLAnchorElement).style.transform = "translateY(0)"
+                }}
+              >
+                {/* WhatsApp glyph */}
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="#25D366" style={{ flexShrink: 0 }}>
+                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.52.149-.174.198-.298.297-.497.1-.198.05-.371-.025-.52-.074-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                </svg>
+                <div>
+                  <div style={{ fontFamily: "'Cinzel', Georgia, serif", fontSize: 13, fontWeight: 700, color: "#E8DFC8", letterSpacing: "0.04em" }}>
+                    {c.name}
+                  </div>
+                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: "#7A7264", margin: "2px 0" }}>
+                    {c.role}
+                  </div>
+                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: "#25D366", letterSpacing: "0.05em" }}>
+                    {c.display}
+                  </div>
+                </div>
+              </a>
+            ))}
+          </div>
         </div>
       </div>
     </div>
