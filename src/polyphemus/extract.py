@@ -26,6 +26,28 @@ class LayoutElement:
 
 
 @dataclass
+class PageStats:
+    """Per-page display statistics (does not affect the official count)."""
+
+    page: int = 0
+    words: int = 0
+    non_words: int = 0
+    math_words: int = 0
+    figures: int = 0
+    counted: bool = True
+
+    def to_dict(self) -> dict:
+        return {
+            "page": self.page,
+            "words": self.words,
+            "non_words": self.non_words,
+            "math_words": self.math_words,
+            "figures": self.figures,
+            "counted": self.counted,
+        }
+
+
+@dataclass
 class TextExtractionResult:
     countwords: int = 0
     countnonwords: int = 0
@@ -35,6 +57,7 @@ class TextExtractionResult:
     count_specialpages: int = 0
     counttext: list[list[list[str]]] = field(default_factory=list)
     notcounttext: list[list[list[str]]] = field(default_factory=list)
+    page_stats: list[PageStats] = field(default_factory=list)
 
 
 def _pymupdf_to_pdfminer_bbox(
@@ -146,14 +169,22 @@ def extract_text(
         page_height = float(page.rect.height)
         elements = iter_page_elements(page)
 
+        page_words_before = countwords
+        page_nonwords_before = countnonwords
+        page_mathwords = 0
+        page_figures = 0
+
         # Count figures similarly to LTImage/LTFigure
         for element in elements:
             if element.is_figure or element.is_image:
                 countfigures = countfigures + 1
+                page_figures = page_figures + 1
 
         # If no type-1 blocks, still try image xrefs once per page for count
         if not any(e.is_image for e in elements):
-            countfigures = countfigures + count_images_on_page(page)
+            n_extra = count_images_on_page(page)
+            countfigures = countfigures + n_extra
+            page_figures = page_figures + n_extra
 
         result.counttext.append([])
         result.notcounttext.append([])
@@ -189,6 +220,7 @@ def extract_text(
                         mathmodewords_path=mathmodewords_path,
                     )
                 )
+                page_mathwords = page_mathwords + count_mathwords
 
                 if len(words) > 0:
                     result.counttext[j - 1].append(words)
@@ -197,6 +229,17 @@ def extract_text(
                     result.notcounttext[j - 1].append(non_words)
             else:
                 result.notcounttext[j - 1].append(words)
+
+        result.page_stats.append(
+            PageStats(
+                page=j,
+                words=countwords - page_words_before,
+                non_words=countnonwords - page_nonwords_before,
+                math_words=page_mathwords,
+                figures=page_figures,
+                counted=countpage,
+            )
+        )
 
     doc.close()
 

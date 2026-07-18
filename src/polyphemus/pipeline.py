@@ -6,7 +6,7 @@ import io
 from dataclasses import dataclass, field
 from typing import Optional
 
-from polyphemus.extract import extract_text
+from polyphemus.extract import PageStats, extract_text
 from polyphemus.images import extract_images
 from polyphemus.ocr import SENTINEL, ocr_images
 
@@ -23,6 +23,7 @@ class CountResult:
     math_words: int = 0
     counted_words: list[list[list[str]]] = field(default_factory=list)
     non_counted_tokens: list[list[list[str]]] = field(default_factory=list)
+    page_stats: list[PageStats] = field(default_factory=list)
 
     def to_dict(self, include_lists: bool = False) -> dict:
         d = {
@@ -34,6 +35,7 @@ class CountResult:
             "pages": self.pages,
             "special_pages": self.special_pages,
             "math_words": self.math_words,
+            "page_stats": [p.to_dict() for p in self.page_stats],
         }
         if include_lists:
             d["counted_words"] = self.counted_words
@@ -126,6 +128,7 @@ def run_pipeline(config: PipelineConfig) -> CountResult:
         math_words=count_mathwords,
         counted_words=counttext,
         non_counted_tokens=notcounttext,
+        page_stats=text.page_stats,
     )
 
 
